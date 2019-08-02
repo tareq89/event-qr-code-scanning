@@ -1,42 +1,29 @@
 <template>
   <section class="container">
     <div>
-      <qrcode-stream @decode="onDecode" @init="onInit" />
-      <span v-if="error" class="error">{{ error }}</span>
+      <b-tabs content-class="mt-3">
+        <b-tab title="QR Code Scan" active>
+          <qrcode-stream @decode="onDecode" @init="onInit" />
+          <span v-if="error" class="error">{{ error }}</span>
+        </b-tab>
+        <b-tab title="Phone/Email">
+          <input id="input" v-model="phoneNumber" type="text" placeholder="Insert registered phone number">
+          <button id="button" @click="verifyPhoneNumber">SCAN</button>
+        </b-tab>
+      </b-tabs>
     </div>
   </section>
 </template>
 
 <script>
 import { QrcodeStream } from 'vue-qrcode-reader'
+const reUrl = /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\(?:[^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))?/
+const rePhoneNumber = /^01[3-9]\d{8}$/
 
 function isUrl (data) {
-  return true
-}
-
-function callMatchUrl (url) {
-  switch (url) {
-    case 1:
-      return Promise.resolve({
-        isPaid: 1,
-        isAttended: 0,
-        approve_url: 'https://laravel.com.bd'
-      })
-    case 1:
-      return Promise.resolve({
-        isPaid: 1,
-        isAttended: 1
-      })
-    default:
-      return Promise.resolve({
-        isPaid: 0,
-        isAttended: 0
-      })
-  }
-}
-
-function callApproveUrl (url) {
-  return Promise.resolve({})
+  console.log(reUrl.test(data))
+  console.log(rePhoneNumber.test(data))
+  return reUrl.test(data) || rePhoneNumber.test(data)
 }
 
 export default {
@@ -45,46 +32,55 @@ export default {
   },
   data () {
     return {
-      result: '',
       error: '',
-      info: '',
-      showConfirmAttendance: false
+      phoneNumber: null
     }
   },
   methods: {
-    onDecode (result) {
-      this.result = result
-      if (isUrl(result)) {
-        callMatchUrl(result)
-          .then(result => {
-            if (result.isPaid) {
-              if (result.isAttended) {
-                this.info = "You have allready confirmed your attendance"
-              } else {
-                this.showConfirmAttendance = true
-              }
-            } else {
-              this.info = "You have not paid for the event yet"
-            }
-          })
-      } 
+    verifyPhoneNumber () {
+      if (rePhoneNumber.test(this.phoneNumber)) {
+        const url = `http://event.local.laracamp.net/attendee/search?q=${this.phoneNumber}`
+        this.process(url)
+      } else {
+        alert('Please input a correct registered phone number')
+      }
     },
-    confirmAttendance () {
-      callApproveUrl(this.result)
-        .then(() => {
-          alert('Your attendance has been confirmed')
+    onDecode (result) {
+      if (reUrl.test(result)) {
+        this.process(result)
+      } else {
+        alert('Please scan a correct qr code')
+      }
+    },
+    process (result) {      
+      this.$axios.$get(result)
+        .then(result => {
+          if (!!result.data.is_paid) {
+            if (!!result.data.attend_at) {
+              alert("You have allready confirmed your attendance")
+            } else {
+              return this.$axios.$put(result.approve_url)
+                .then(() => {
+                  alert('Your attendance is confirmed!')
+                })
+                .catch(() => {
+                  alert('something went wrong, please go for manual process! :(')
+                })
+                .finally(() => {
+                  this.phoneNumber = null
+                })
+            }
+          } else {
+            alert("You have not paid for the event yet")
+          }
         })
-        .catch(() => {
-          alert('CONFIRMATION FAILED!')
+        .catch(error => {
+          if (error.message.includes('404')) alert('Sorry, you were not found registered!')
+          if (error.message.includes('401')) alert('You have allready confirmed your attendance!')
         })
         .finally(() => {
-          this.resetState()
+          this.phoneNumber = null
         })
-    },
-    resetState () {
-      this.info = null
-      this.showConfirmAttendance = false
-      this.result = null
     },
     async onInit (promise) {
       try {
@@ -143,5 +139,14 @@ export default {
   background-color: red;
   color: white;
   font-size: 1em;
+}
+
+#input {
+  border: 1px solid black;
+}
+
+#button {
+  border: 1px solid;
+  float: right;
 }
 </style>
