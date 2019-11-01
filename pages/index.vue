@@ -60,7 +60,7 @@ export default {
             if (!!result.data.attend_at) {
               alert("You have allready confirmed your attendance")
             } else {
-              return this.$axios.$put(result.approve_url)
+              return this.$axios.$get(result.approve_url)
                 .then(() => {
                   alert('Your attendance is confirmed!')
                 })
