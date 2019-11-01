@@ -7,8 +7,12 @@
           <span v-if="error" class="error">{{ error }}</span>
         </b-tab>
         <b-tab title="Phone/Email">
-          <input id="input" v-model="phoneNumber" type="text" placeholder="Insert registered phone number">
-          <button id="button" @click="verifyPhoneNumber">SCAN</button>
+          <div class="input-group">
+            <input id="input" class="form-control" v-model="phoneNumber" type="text" placeholder="Insert registered phone number">
+            <div class="input-group-append">
+              <button id="button" class="btn btn-outline-primary" @click="verifyPhoneNumber">SCAN</button>
+            </div>
+          </div>
         </b-tab>
       </b-tabs>
     </div>
@@ -22,8 +26,8 @@ const rePhoneNumber = /^01[3-9]\d{8}$/
 const reEmail = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 
 function isUrl (data) {
-  console.log(reUrl.test(data))
-  console.log(rePhoneNumber.test(data))
+  // console.log(reUrl.test(data))
+  // console.log(rePhoneNumber.test(data))
   return reUrl.test(data) || rePhoneNumber.test(data)
 }
 
@@ -56,7 +60,9 @@ export default {
     process (result) {      
       this.$axios.$get(result)
         .then(result => {
-          if (!!result.data.is_paid) {
+          const ATTENDEE  = 1
+          const NOT_PAID = 0
+          if (!(result.data.is_paid === NOT_PAID && result.type === ATTENDEE)) {
             if (!!result.data.attend_at) {
               alert("You have allready confirmed your attendance")
             } else {
