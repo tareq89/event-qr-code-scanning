@@ -19,6 +19,7 @@
 import { QrcodeStream } from 'vue-qrcode-reader'
 const reUrl = /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\(?:[^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))?/
 const rePhoneNumber = /^01[3-9]\d{8}$/
+const reEmail = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 
 function isUrl (data) {
   console.log(reUrl.test(data))
@@ -38,7 +39,7 @@ export default {
   },
   methods: {
     verifyPhoneNumber () {
-      if (rePhoneNumber.test(this.phoneNumber)) {
+      if (rePhoneNumber.test(this.phoneNumber) || reEmail.test(this.phoneNumber)) {
         const url = `https://ng-bd.com/attendee/search?q=${this.phoneNumber}`
         this.process(url)
       } else {
