@@ -39,7 +39,7 @@ export default {
   methods: {
     verifyPhoneNumber () {
       if (rePhoneNumber.test(this.phoneNumber)) {
-        const url = `http://event.local.laracamp.net/attendee/search?q=${this.phoneNumber}`
+        const url = `https://ng-bd.com/attendee/search?q=${this.phoneNumber}`
         this.process(url)
       } else {
         alert('Please input a correct registered phone number')
