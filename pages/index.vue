@@ -32,6 +32,9 @@ function isUrl (data) {
 }
 
 export default {
+  asyncData (ctx) {
+    console.log(ctx)
+  },
   components: {
     QrcodeStream
   },
@@ -44,7 +47,7 @@ export default {
   methods: {
     verifyPhoneNumber () {
       if (rePhoneNumber.test(this.phoneNumber) || reEmail.test(this.phoneNumber)) {
-        const url = `https://ng-bd.com/attendee/search?q=${this.phoneNumber}`
+        const url = `https://phpxperts.net/attendee/search?q=${this.phoneNumber}`
         this.process(url)
       } else {
         alert('Please input a correct registered phone number')
