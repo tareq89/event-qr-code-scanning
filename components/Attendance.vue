@@ -73,7 +73,7 @@ export default {
             } else {
               return this.$axios.$get(result.approve_url)
                 .then((response) => {
-                  let shirtSize = response && response.misc ? response.misc.tshirt : 'Unknown'
+                  let shirtSize = result && result.data && result.data.misc ? result.data.misc.tshirt : 'Unknown'
                   alert('Your attendance is confirmed! Your T-Shirt size: ', shirtSize)
                 })
                 .catch((error) => {
@@ -89,6 +89,7 @@ export default {
           }
         })
         .catch(error => {
+          console.log(error)
           if (error.message.includes('404')) alert('Sorry, you were not found registered!')
           if (error.message.includes('401')) alert('You have allready confirmed your attendance!')
         })

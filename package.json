@@ -5,7 +5,7 @@
   "author": "tareq89",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
+    "dev": "PORT=8080 nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
